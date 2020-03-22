@@ -4,6 +4,7 @@ from static.data.users import User
 from static.data.jobs import Jobs
 from datetime import datetime
 from static.data.loginform import LoginForm
+from static.data.registerform import RegisterForm
 from flask_login import LoginManager, login_user, login_required
 
 app = Flask(__name__)
@@ -52,6 +53,32 @@ def works_log():
             config['d_list'].append('Unknown')
     # print(datetime.fromisoformat(config['mdr'][0].end_date) - datetime.fromisoformat(config['mdr'][0].start_date))
     return render_template('works_log.html', **config)
+
+
+@app.route('/register_job', methods=['GET', 'POST'])
+def reqister_job():
+    form = RegisterForm()
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        job = Jobs(
+            team_leader=session.query(User).filter(User.name == form.teamlider.data.split()[0],
+                                                   User.surname == form.teamlider.data.split()[1])[0].id,
+            job=form.job.data,
+            work_size=form.work_size.data,
+            collaborators=form.collaborators.data,
+            start_date=datetime(*list(map(int, form.start_date.data.split('.')))),
+            end_date=datetime(*list(map(int, form.end_date.data.split('.')))),
+            is_finished=form.is_finished.data
+        )
+        session.add(job)
+        session.commit()
+        return redirect('/success')
+    return render_template('register_job.html', title='Регистрация работы', form=form)
+
+
+@app.route('/success')
+def success():
+    return render_template('success.html', title='Успешная регистрация')
 
 
 if __name__ == '__main__':
