@@ -156,6 +156,24 @@ def edit_news(id):
             abort(404)
     return render_template('register_job.html', title='Редактирование новости', form=form)
 
+
+@app.route('/jobs_delete/<int:id>', methods=['GET', 'POST'])
+@login_required
+def jobs_delete(id):
+    session = db_session.create_session()
+    jobs = session.query(Jobs).filter(Jobs.id == id,
+                                      Jobs.user == current_user).first()
+    if not jobs:
+        jobs = session.query(Jobs).filter(Jobs.id == id,
+                                          current_user.id == 1).first()
+    if jobs:
+        session.delete(jobs)
+        session.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
 if __name__ == '__main__':
     db_session.global_init("static/db/blogs.sqlite")
     session = db_session.create_session()
