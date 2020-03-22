@@ -72,7 +72,7 @@ def reqister_job():
         )
         session.add(job)
         session.commit()
-        return redirect('/success')
+        return redirect('/works_log')
     return render_template('register_job.html', title='Регистрация работы', form=form)
 
 
