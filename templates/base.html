@@ -24,6 +24,11 @@
                 <li class="nav-item active">
                 <a class="nav-link" href="#">{{ current_user.name }}</a>
               </li>
+                {% else %}
+                <p>
+                    <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
+                    <a class="btn btn-success" href="/login">Войти</a>
+                </p>
                 {% endif %}
             </ul>
           </div>

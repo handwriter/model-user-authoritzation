@@ -5,6 +5,7 @@ from static.data.jobs import Jobs
 from datetime import datetime
 from static.data.loginform import LoginForm
 from static.data.registerform import RegisterForm
+from static.data.registeruserform import RegisterUserForm
 from flask_login import LoginManager, login_user, login_required
 
 app = Flask(__name__)
@@ -74,6 +75,36 @@ def reqister_job():
         session.commit()
         return redirect('/works_log')
     return render_template('register_job.html', title='Регистрация работы', form=form)
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def reqister():
+    form = RegisterUserForm()
+    if form.validate_on_submit():
+        if form.password.data != form.repeat_password.data:
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Пароли не совпадают")
+        session = db_session.create_session()
+        if session.query(User).filter(User.email == form.username.data).first():
+            return render_template('register.html', title='Регистрация',
+                                   form=form,
+                                   message="Такой пользователь уже есть")
+        user = User(
+            surname=form.surname.data,
+            name=form.name.data,
+            age=form.age.data,
+            position=form.position.data,
+            speciality=form.speciality.data,
+            address=form.address.data,
+            email=form.username.data,
+            hashed_password=form.password.data
+        )
+        user.set_password(form.password.data)
+        session.add(user)
+        session.commit()
+        return redirect('/success')
+    return render_template('register.html', title='Регистрация', form=form)
 
 
 @app.route('/success')
