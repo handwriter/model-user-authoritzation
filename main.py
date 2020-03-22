@@ -4,7 +4,7 @@ from static.data.users import User
 from static.data.jobs import Jobs
 from datetime import datetime
 from static.data.loginform import LoginForm
-from flask_login import LoginManager, login_user
+from flask_login import LoginManager, login_user, login_required
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -26,7 +26,7 @@ def login():
         user = session.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect("/")
+            return redirect("/works_log")
         return render_template('login.html',
                                message="Неправильный логин или пароль",
                                form=form)
@@ -36,6 +36,24 @@ def login():
 @app.route('/index')
 def index():
     return render_template('base.html', title='Главная')
+
+
+@app.route('/works_log')
+@login_required
+def works_log():
+    config = {'title': 'Works log',
+              'db_jobs': session.query(Jobs).all(),
+              'db_users': session.query(User).all(),
+              'd_list': []}
+    for i in session.query(Jobs).all():
+        try:
+            config['d_list'].append(str(datetime.fromisoformat(i.end_date) - datetime.fromisoformat(i.start_date)))
+        except:
+            config['d_list'].append('Unknown')
+    # print(datetime.fromisoformat(config['mdr'][0].end_date) - datetime.fromisoformat(config['mdr'][0].start_date))
+    return render_template('works_log.html', **config)
+
+
 if __name__ == '__main__':
     db_session.global_init("static/db/blogs.sqlite")
     session = db_session.create_session()
