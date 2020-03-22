@@ -37,13 +37,7 @@ def login():
 
 
 @app.route('/')
-@app.route('/index')
-def index():
-    return render_template('base.html', title='Главная')
-
-
 @app.route('/works_log')
-@login_required
 def works_log():
     config = {'title': 'Works log',
               'db_jobs': session.query(Jobs).all(),
