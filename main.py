@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request
+from flask import Flask, render_template, url_for, redirect, request, abort
 from static.data import db_session
 from static.data.users import User
 from static.data.jobs import Jobs
@@ -6,7 +6,8 @@ from datetime import datetime
 from static.data.loginform import LoginForm
 from static.data.registerform import RegisterForm
 from static.data.registeruserform import RegisterUserForm
-from flask_login import LoginManager, login_user, login_required
+from static.data.editform import EditForm
+from flask_login import LoginManager, login_user, login_required, current_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -33,6 +34,7 @@ def login():
                                message="Неправильный логин или пароль",
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
+
 
 @app.route('/')
 @app.route('/index')
@@ -78,7 +80,7 @@ def reqister_job():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def reqister():
+def register():
     form = RegisterUserForm()
     if form.validate_on_submit():
         if form.password.data != form.repeat_password.data:
@@ -111,6 +113,48 @@ def reqister():
 def success():
     return render_template('success.html', title='Успешная регистрация')
 
+
+@app.route('/jobs/<int:id>', methods=['GET', 'POST'])
+@login_required
+def edit_news(id):
+    form = EditForm()
+    if request.method == "GET":
+        session = db_session.create_session()
+        jobs = session.query(Jobs).filter(Jobs.id == id,
+                                          Jobs.user == current_user).first()
+        if not jobs:
+            jobs = session.query(Jobs).filter(Jobs.id == 1,
+                                              Jobs.user == current_user).first()
+        if jobs:
+            form.teamlider.data = jobs.team_leader
+            form.job.data = jobs.job
+            form.work_size.data = jobs.work_size
+            form.collaborators.data = jobs.collaborators
+            form.start_date.data = jobs.start_date
+            form.end_date.data = jobs.end_date
+            form.is_finished.data = jobs.is_finished
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        session = db_session.create_session()
+        jobs = session.query(Jobs).filter(Jobs.id == id,
+                                          Jobs.user == current_user).first()
+        if not jobs:
+            jobs = session.query(Jobs).filter(Jobs.id == 1,
+                                              Jobs.user == current_user).first()
+        if jobs:
+            jobs.team_leader = form.teamlider.data
+            jobs.job = form.job.data
+            jobs.work_size = form.work_size.data
+            jobs.collaborators = form.collaborators.data
+            jobs.start_date = form.start_date.data
+            jobs.end_date = form.end_date.data
+            jobs.is_finished = form.is_finished.data
+            session.commit()
+            return redirect('/works_log')
+        else:
+            abort(404)
+    return render_template('register_job.html', title='Редактирование новости', form=form)
 
 if __name__ == '__main__':
     db_session.global_init("static/db/blogs.sqlite")

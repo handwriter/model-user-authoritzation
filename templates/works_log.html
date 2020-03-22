@@ -28,5 +28,8 @@
     </tr>
   </tbody>
 </table>
+{% if current_user.is_authenticated %}
+<a class="btn btn-primary " href="/jobs/{{ loop.index }}">Редактировать</a>
+{% endif %}
 {% endfor %}
 {% endblock %}
