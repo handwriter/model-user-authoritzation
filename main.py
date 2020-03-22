@@ -32,7 +32,10 @@ def login():
                                form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
-
+@app.route('/')
+@app.route('/index')
+def index():
+    return render_template('base.html', title='Главная')
 if __name__ == '__main__':
     db_session.global_init("static/db/blogs.sqlite")
     session = db_session.create_session()
