@@ -123,8 +123,8 @@ def edit_news(id):
         jobs = session.query(Jobs).filter(Jobs.id == id,
                                           Jobs.user == current_user).first()
         if not jobs:
-            jobs = session.query(Jobs).filter(Jobs.id == 1,
-                                              Jobs.user == current_user).first()
+            jobs = session.query(Jobs).filter(Jobs.id == id,
+                                              current_user.id == 1).first()
         if jobs:
             form.teamlider.data = jobs.team_leader
             form.job.data = jobs.job
@@ -140,8 +140,8 @@ def edit_news(id):
         jobs = session.query(Jobs).filter(Jobs.id == id,
                                           Jobs.user == current_user).first()
         if not jobs:
-            jobs = session.query(Jobs).filter(Jobs.id == 1,
-                                              Jobs.user == current_user).first()
+            jobs = session.query(Jobs).filter(Jobs.id == id,
+                                              current_user.id == 1).first()
         if jobs:
             jobs.team_leader = form.teamlider.data
             jobs.job = form.job.data
