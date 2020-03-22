@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    {% if type == "ol" %}
+        <ol>
+        {% for item in data %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        </ol>
+    {% elif type == "ul" %}
+        <ul>
+        {% for item in data %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

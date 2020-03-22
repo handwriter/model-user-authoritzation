@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% set person = persons|random %}
+<h2>{{ person['name'] }}</h2>
+<img src={{ person['link'] }}></br>
+<text>{% for prof in person['professions']|sort %} {{ prof }}{% if not loop.last %},{% endif %}{% endfor %}</text>
+{% endblock %}

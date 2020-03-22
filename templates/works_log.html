@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h3>Work list</h3>
+{% for item in db_jobs %}
+<h3>Action # {{ item.id }}</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Title of activity</th>
+      <th scope="col">Team lider</th>
+      <th scope="col">Duration</th>
+      <th scope="col">List of collaborators</th>
+      <th scope="col">Is finished</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>{{ item.job }}</td>
+      {% for user in db_users %}
+        {% if user.id == item.team_leader %}
+          <td>{{ user.name }} {{ user.surname }}</td>
+        {% endif %}
+      {% endfor %}
+      <td>{{ d_list[loop.index0] }}</td>
+      <td>{{ item.collaborators }}</td>
+      <td>{{ item.is_finished }}</td>
+    </tr>
+  </tbody>
+</table>
+{% endfor %}
+{% endblock %}

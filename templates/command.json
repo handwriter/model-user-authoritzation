@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Arthur",
+    "surname": "Doyl",
+    "link": "https://cdn.pixabay.com/photo/2017/09/23/12/08/costume-2778641__480.png",
+    "professions": ["человек", "сантехник", "биолог"]
+  },
+  {
+    "name": "Dunkan",
+    "surname": "Klark",
+    "link": "https://1.bp.blogspot.com/_PIQ4JS16z9Q/TEW8YXJYlMI/AAAAAAAAKV8/D8MqAwig1s0/s1600/6.jpg",
+    "professions": ["физик", "химик", "астролог"]
+  }
+]
