@@ -7,7 +7,7 @@ from static.data.loginform import LoginForm
 from static.data.registerform import RegisterForm
 from static.data.registeruserform import RegisterUserForm
 from static.data.editform import EditForm
-from flask_login import LoginManager, login_user, login_required, current_user
+from flask_login import LoginManager, login_user, login_required, current_user, UserMixin
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -201,6 +201,33 @@ def get_jobs():
     )
 
 
+blueprint3 = Blueprint('jobs_api_create/', __name__,
+                      template_folder='templates')
+
+
+@blueprint.route('/api/jobs', methods=['POST'])
+def create_news():
+    if not request.json:
+        return jsonify({'error': 'Empty request'})
+    elif not all(key in request.json for key in
+                 ['team_leader', 'job', 'work_size', 'collaborators', 'start_date', 'end_date', 'is_finished']):
+        return jsonify({'error': 'Bad request'})
+    session = db_session.create_session()
+    jobs = Jobs(
+        team_leader=request.json['team_leader'],
+        job=request.json['job'],
+        work_size=request.json['work_size'],
+        collaborators=request.json['collaborators'],
+        start_date=request.json['start_date'],
+        end_date=request.json['end_date'],
+        is_finished=request.json['is_finished'],
+        user=User(name='Anonimous')
+    )
+    session.add(jobs)
+    session.commit()
+    return jsonify({'success': 'OK'})
+
+
 @app.errorhandler(404)
 def not_found(error):
     return make_response(jsonify({'error': 'Not found'}), 404)
@@ -212,3 +239,4 @@ if __name__ == '__main__':
     app.register_blueprint(blueprint)
     app.register_blueprint(blueprint2)
     app.run(port=8080, host='127.0.0.1')
+
