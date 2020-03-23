@@ -1,4 +1,4 @@
-from flask import Flask, render_template, url_for, redirect, request, abort, Blueprint, jsonify
+from flask import Flask, render_template, url_for, redirect, request, abort, Blueprint, jsonify, make_response
 from static.data import db_session
 from static.data.users import User
 from static.data.jobs import Jobs
@@ -167,11 +167,28 @@ def jobs_delete(id):
     return redirect('/')
 
 
-blueprint = Blueprint('jobs_api', __name__,
+blueprint = Blueprint('jobs_api/job_id', __name__,
                       template_folder='templates')
 
 
-@blueprint.route('/api/jobs')
+@blueprint.route('/api/jobs/<int:job_id>', methods=['GET'])
+def get_jobs_by_id(job_id):
+    session = db_session.create_session()
+    news = session.query(Jobs).filter(Jobs.id == job_id)
+    return jsonify(
+        {
+            'jobs':
+                [item.to_dict()
+                 for item in news]
+        }
+    )
+
+
+blueprint2 = Blueprint('jobs_api/', __name__,
+                      template_folder='templates')
+
+
+@blueprint2.route('/api/jobs')
 def get_jobs():
     session = db_session.create_session()
     news = session.query(Jobs).all()
@@ -183,8 +200,15 @@ def get_jobs():
         }
     )
 
+
+@app.errorhandler(404)
+def not_found(error):
+    return make_response(jsonify({'error': 'Not found'}), 404)
+
+
 if __name__ == '__main__':
     db_session.global_init("static/db/blogs.sqlite")
     session = db_session.create_session()
     app.register_blueprint(blueprint)
+    app.register_blueprint(blueprint2)
     app.run(port=8080, host='127.0.0.1')
