@@ -213,8 +213,6 @@ def create_news():
                  ['team_leader', 'job', 'work_size', 'collaborators', 'start_date', 'end_date', 'is_finished', 'id']):
         return jsonify({'error': 'Bad request'})
     session = db_session.create_session()
-    if session.query(Jobs).filter(Jobs.id == request.json['id']):
-        return jsonify({'error': 'Id already exists'})
     jobs = Jobs(
         id=request.json['id'],
         team_leader=request.json['team_leader'],
@@ -227,7 +225,15 @@ def create_news():
         user=User(name='Anonimous')
     )
     session.add(jobs)
-    session.commit()
+    try:
+        session.commit()
+    except Exception as e:
+        if 'UNIQUE' in str(e):
+            return jsonify({'error': 'Id already exists'})
+        elif 'unsupported type' in str(e):
+            return jsonify({'error': 'One of args has unsupported type'})
+        else:
+            return jsonify({'error': str(e).split('\n')[0]})
     return jsonify({'success': 'OK'})
 
 
