@@ -201,10 +201,6 @@ def get_jobs():
     )
 
 
-blueprint3 = Blueprint('jobs_api_create/', __name__,
-                      template_folder='templates')
-
-
 @blueprint.route('/api/jobs', methods=['POST'])
 def create_news():
     if not request.json:
@@ -234,6 +230,17 @@ def create_news():
             return jsonify({'error': 'One of args has unsupported type'})
         else:
             return jsonify({'error': str(e).split('\n')[0]})
+    return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/jobs/<int:jobs_id>', methods=['DELETE'])
+def delete_news(jobs_id):
+    session = db_session.create_session()
+    jobs = session.query(Jobs).get(jobs_id)
+    if not jobs:
+        return jsonify({'error': 'Not found'})
+    session.delete(jobs)
+    session.commit()
     return jsonify({'success': 'OK'})
 
 
