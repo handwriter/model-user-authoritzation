@@ -213,7 +213,7 @@ def create_news():
                  ['team_leader', 'job', 'work_size', 'collaborators', 'start_date', 'end_date', 'is_finished', 'id']):
         return jsonify({'error': 'Bad request'})
     session = db_session.create_session()
-    if len([i for i in session.query(Jobs).filter(Jobs.id == request.json['id'])]) != 0:
+    if session.query(Jobs).filter(Jobs.id == request.json['id']):
         return jsonify({'error': 'Id already exists'})
     jobs = Jobs(
         id=request.json['id'],
