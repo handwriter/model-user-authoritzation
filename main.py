@@ -109,7 +109,7 @@ def success():
 
 @app.route('/jobs/<int:id>', methods=['GET', 'POST'])
 @login_required
-def edit_news(id):
+def edit_jobs(id):
     form = EditForm()
     if request.method == "GET":
         session = db_session.create_session()
@@ -174,12 +174,12 @@ blueprint = Blueprint('jobs_api/job_id', __name__,
 @blueprint.route('/api/jobs/<int:job_id>', methods=['GET'])
 def get_jobs_by_id(job_id):
     session = db_session.create_session()
-    news = session.query(Jobs).filter(Jobs.id == job_id)
+    jobs = session.query(Jobs).filter(Jobs.id == job_id)
     return jsonify(
         {
             'jobs':
                 [item.to_dict()
-                 for item in news]
+                 for item in jobs]
         }
     )
 
@@ -191,18 +191,18 @@ blueprint2 = Blueprint('jobs_api/', __name__,
 @blueprint2.route('/api/jobs')
 def get_jobs():
     session = db_session.create_session()
-    news = session.query(Jobs).all()
+    jobs = session.query(Jobs).all()
     return jsonify(
         {
             'jobs':
                 [item.to_dict()
-                 for item in news]
+                 for item in jobs]
         }
     )
 
 
 @blueprint.route('/api/jobs', methods=['POST'])
-def create_news():
+def create_jobs():
     if not request.json:
         return jsonify({'error': 'Empty request'})
     elif not all(key in request.json for key in
@@ -234,12 +234,29 @@ def create_news():
 
 
 @blueprint.route('/api/jobs/<int:jobs_id>', methods=['DELETE'])
-def delete_news(jobs_id):
+def delete_jobs(jobs_id):
     session = db_session.create_session()
     jobs = session.query(Jobs).get(jobs_id)
     if not jobs:
         return jsonify({'error': 'Not found'})
     session.delete(jobs)
+    session.commit()
+    return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/jobs/<int:jobs_id>', methods=['PUT'])
+def change_jobs(jobs_id):
+    session = db_session.create_session()
+    jobs = session.query(Jobs).get(jobs_id)
+    if not jobs:
+        return jsonify({'error': 'Not found'})
+    if not request.json:
+        return jsonify({'error': 'Empty request'})
+    if len(set(session.execute('SELECT * FROM jobs').keys()).intersection(set(request.json.keys()))) != len(
+            request.json.keys()):
+        return jsonify({'error': 'Incorrect attributes'})
+    for i in request.json.keys():
+        jobs.__setattr__(i, request.json[i])
     session.commit()
     return jsonify({'success': 'OK'})
 
