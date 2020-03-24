@@ -210,10 +210,13 @@ def create_news():
     if not request.json:
         return jsonify({'error': 'Empty request'})
     elif not all(key in request.json for key in
-                 ['team_leader', 'job', 'work_size', 'collaborators', 'start_date', 'end_date', 'is_finished']):
+                 ['team_leader', 'job', 'work_size', 'collaborators', 'start_date', 'end_date', 'is_finished', 'id']):
         return jsonify({'error': 'Bad request'})
     session = db_session.create_session()
+    if len([i for i in session.query(Jobs).filter(Jobs.id == request.json['id'])]) != 0:
+        return jsonify({'error': 'Id already exists'})
     jobs = Jobs(
+        id=request.json['id'],
         team_leader=request.json['team_leader'],
         job=request.json['job'],
         work_size=request.json['work_size'],
