@@ -28,7 +28,10 @@ class userResource(Resource):
         session = db_session.create_session()
         user = session.query(User).get(user_id)
         session.delete(user)
-        session.commit()
+        try:
+            session.commit()
+        except Exception as e:
+            return jsonify({'error': str(e)})
         return jsonify({'success': 'OK'})
 
 
@@ -53,7 +56,13 @@ class userListResource(Resource):
         )
         user.set_password(args['password'])
         session.add(user)
-        session.commit()
+        try:
+            session.commit()
+        except Exception as e:
+            if 'UNIQUE' in str(e):
+                return jsonify({'error': 'One of unique args in not unique'})
+            else:
+                return jsonify({'error': str(e)})
         return jsonify({'success': 'OK'})
 
 
