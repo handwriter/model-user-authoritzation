@@ -68,4 +68,4 @@ def abort_if_jobs_not_found(jobs_id):
     session = db_session.create_session()
     jobs = session.query(Jobs).get(jobs_id)
     if not jobs:
-        abort(404, message=f"Jobs {jobs_id} not found")
+        abort(404)

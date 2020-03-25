@@ -15,6 +15,7 @@ from flask_restful import reqparse, abort, Api, Resource
 from static.data import jobs_api
 from PIL import Image
 from static.data import users_resource
+from static.data import jobs_resource
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -229,5 +230,7 @@ if __name__ == '__main__':
     app.register_blueprint(user_api.blueprint2)
     api.add_resource(users_resource.userListResource, '/api/v2/users')
     api.add_resource(users_resource.userResource, '/api/v2/users/<int:user_id>')
+    api.add_resource(jobs_resource.jobsListResource, '/api/v2/jobs')
+    api.add_resource(jobs_resource.jobsResource, '/api/v2/jobs/<int:jobs_id>')
     app.run(port=8080, host='127.0.0.1')
 
