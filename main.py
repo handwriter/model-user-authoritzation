@@ -11,11 +11,14 @@ from static.data.editform import EditForm
 from flask_login import LoginManager, login_user, login_required, current_user, UserMixin
 from static.data import user_api
 import requests
+from flask_restful import reqparse, abort, Api, Resource
 from static.data import jobs_api
 from PIL import Image
+from static.data import users_resource
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+api = Api(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
 
@@ -224,5 +227,7 @@ if __name__ == '__main__':
     session = db_session.create_session()
     app.register_blueprint(jobs_api.blueprint)
     app.register_blueprint(user_api.blueprint2)
+    api.add_resource(users_resource.userListResource, '/api/v2/users')
+    api.add_resource(users_resource.userResource, '/api/v2/users/<int:user_id>')
     app.run(port=8080, host='127.0.0.1')
 
