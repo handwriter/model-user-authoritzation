@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Nostalgy</h1>
+    {% if data == [] %}
+        <h3>User not found</h3>
+    {% else %}
+        <h2>{{ data[0]['name'] }} {{ data[0]['surname'] }}</h2>
+        <h4>Hometown {{ data[0]['city_from'] }}</h4>
+        <img src="{{ image_url }}">
+    {% endif %}
+{% endblock %}

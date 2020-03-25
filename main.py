@@ -10,7 +10,9 @@ from requests import get
 from static.data.editform import EditForm
 from flask_login import LoginManager, login_user, login_required, current_user, UserMixin
 from static.data import user_api
+import requests
 from static.data import jobs_api
+from PIL import Image
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -174,8 +176,41 @@ def jobs_delete(id):
 def user_show(user_id):
     configure = {
         'title': 'Hometown',
-        'data': get(f'http://localhost:8080/api/user/{user_id}').json()['user']
+        'data': get(f'http://localhost:8080/api/user/{user_id}').json()['user'],
+
     }
+    toponym_to_find = configure["data"][0]["city_from"]
+
+    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+
+    geocoder_params = {
+        "apikey": "40d1649f-0493-4b70-98ba-98533de7710b",
+        "geocode": toponym_to_find,
+        "format": "json"}
+
+    response = requests.get(geocoder_api_server, params=geocoder_params)
+    if not response:
+        pass
+
+    json_response = response.json()
+
+    toponym = json_response["response"]["GeoObjectCollection"][
+        "featureMember"][0]["GeoObject"]
+
+    to_size = toponym['boundedBy']['Envelope']
+    delta_1 = float(to_size['upperCorner'].split()[0]) - float(to_size['lowerCorner'].split()[0])
+    delta_2 = float(to_size['upperCorner'].split()[1]) - float(to_size['lowerCorner'].split()[1])
+    toponym_coodrinates = toponym["Point"]["pos"]
+    toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
+
+    map_params = {
+        "ll": ",".join([str(toponym_longitude), str(toponym_lattitude)]),
+        "l": "sat",
+        "spn": f'{delta_1},{delta_2}'
+    }
+
+    map_api_server = "http://static-maps.yandex.ru/1.x/"
+    configure['image_url'] = requests.get(map_api_server, params=map_params, stream=True).url
     return render_template('user_show.html', **configure)
 
 
